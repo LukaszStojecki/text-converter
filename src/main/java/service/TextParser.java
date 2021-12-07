@@ -3,6 +3,7 @@ package service;
 import model.FileType;
 import model.Sentence;
 import model.Text;
+import service.csv.ConvertToCSV;
 import service.xml.ConvertToXML;
 
 import java.io.IOException;
@@ -15,16 +16,24 @@ import java.util.stream.Collectors;
 
 public class TextParser {
 
-    private static final String SENTENCE_SPLITTER_REGEX = "(?<=[.!;?])(?<!Mr\\.|Mrs\\.|Dr\\.|Ms\\.)";
-    private static final String CHARACTERS_TO_REMOVE_FROM_WORDS = "[\"().,!?:-]";
+    private static final String SENTENCE_SPLITTER_REGEX = "[^a-zA-Z0-9\\s.]";
+    private static final String CHARACTERS_TO_REMOVE_FROM_WORDS = "[.?!]";
 
     ConvertToXML convertToXML = new ConvertToXML();
+    ConvertToCSV convertToCSV = new ConvertToCSV();
 
     public void parseString(String text, FileType fileType) {
         Text sortedText = splitAndSort(readText(text));
 
-        if (fileType == FileType.XML) {
-            convertToXML.convert(sortedText);
+        switch (fileType) {
+            case XML:
+                convertToXML.convert(sortedText);
+                break;
+            case CSV:
+                convertToCSV.convert(sortedText);
+                break;
+            default:
+                break;
         }
     }
 
@@ -32,7 +41,7 @@ public class TextParser {
         String word2 = word.trim();
         List<String> allSentences = Arrays.stream(word2
                         .replaceAll(SENTENCE_SPLITTER_REGEX, "")
-                        .split(CHARACTERS_TO_REMOVE_FROM_WORDS))
+                        .trim().split(CHARACTERS_TO_REMOVE_FROM_WORDS))
                 .filter(w -> w.trim().length() > 0)
                 .collect(Collectors.toList());
         List<Sentence> sentences = new ArrayList<>();
@@ -41,9 +50,7 @@ public class TextParser {
             words.sort(String.CASE_INSENSITIVE_ORDER);
             Sentence sentence2 = new Sentence();
             for (String w : words) {
-                if (!w.isBlank()) {
                     sentence2.add(w);
-                }
             }
             sentences.add(sentence2);
         }
@@ -59,5 +66,6 @@ public class TextParser {
         }
         return data;
     }
+
 
 }
