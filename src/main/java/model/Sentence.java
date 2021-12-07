@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -17,5 +18,12 @@ import java.util.List;
 public class Sentence {
 
     private List<String> word;
+
+    public void add(String words) {
+        if (this.word == null) {
+            this.word = new ArrayList<>();
+        }
+        this.word.add(words);
+    }
 
 }
